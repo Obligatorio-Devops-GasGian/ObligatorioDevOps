@@ -32,6 +32,7 @@ jobs:
         uses: hashicorp/setup-terraform@v2
         with:
           terraform_version: 1.5.0
+
       - name: Debug de variables (no muestra valores)
         run: |
           echo "Access Key set: ${AWS_ACCESS_KEY_ID:+yes}"
@@ -46,6 +47,12 @@ jobs:
       - name: Validar sintaxis (terraform validate)
         run: terraform validate
 
+      - name: Verificar identidad AWS (debug credenciales)
+        run: aws sts get-caller-identity
+        env:
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          AWS_SESSION_TOKEN: ${{ secrets.AWS_SESSION_TOKEN }}
       - name: Plan de Terraform
         run: terraform plan
 
