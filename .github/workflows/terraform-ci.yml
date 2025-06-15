@@ -1,0 +1,55 @@
+name: Terraform CI
+
+on:
+  push:
+    branches:
+      - dev
+    paths:
+      - 'infra/**'
+  pull_request:
+    paths:
+      - 'infra/**'
+
+jobs:
+  terraform:
+    name: Validar y aplicar infraestructura
+    runs-on: ubuntu-latest
+
+    defaults:
+      run:
+        working-directory: infra
+
+    env:
+      AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+      AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+
+    steps:
+      - name: Checkout del repositorio
+        uses: actions/checkout@v3
+
+      - name: Instalar Terraform
+        uses: hashicorp/setup-terraform@v2
+        with:
+          terraform_version: 1.5.0
+      - name: Debug de variables (no muestra valores)
+        run: |
+          echo "Access Key set: ${AWS_ACCESS_KEY_ID:+yes}"
+          echo "Secret Key set: ${AWS_SECRET_ACCESS_KEY:+yes}"
+
+      - name: Inicializar Terraform
+        run: terraform init
+
+      - name: Verificar formato (terraform fmt)
+        run: terraform fmt -check -recursive
+
+      - name: Validar sintaxis (terraform validate)
+        run: terraform validate
+
+      - name: Plan de Terraform
+        run: terraform plan
+      - name: Aplicar infraestructura (solo en rama dev)
+        if: github.ref == 'refs/heads/dev'
+        run: terraform apply -auto-approve
+        env:
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
