@@ -47,6 +47,12 @@ jobs:
       - name: Validar sintaxis (terraform validate)
         run: terraform validate
 
+      - name: Verificar identidad AWS (debug credenciales)
+        run: aws sts get-caller-identity
+        env:
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+
       - name: Plan de Terraform
         run: terraform plan
 
