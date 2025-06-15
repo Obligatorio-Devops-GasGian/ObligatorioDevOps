@@ -4,3 +4,7 @@ bin/
 obj/
 .vs/
 node_modules/
+<<<<<<< HEAD
+=======
+infra/.terraform/
+>>>>>>> 0e05f29a16ba5648930b6e4f6853afde8806298d
