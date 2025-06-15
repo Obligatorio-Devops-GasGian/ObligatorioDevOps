@@ -2,6 +2,9 @@ name: Terraform CI
 
 on:
   push:
+    branches:
+      - feature/infraestructura
+      - dev
     paths:
       - 'infra/**'
   pull_request:
@@ -17,6 +20,10 @@ jobs:
       run:
         working-directory: infra
 
+    env:
+      AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+      AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+
     steps:
       - name: Checkout del repositorio
         uses: actions/checkout@v3
@@ -25,6 +32,11 @@ jobs:
         uses: hashicorp/setup-terraform@v2
         with:
           terraform_version: 1.5.0
+
+      - name: Debug de variables (no muestra valores)
+        run: |
+          echo "Access Key set: ${AWS_ACCESS_KEY_ID:+yes}"
+          echo "Secret Key set: ${AWS_SECRET_ACCESS_KEY:+yes}"
 
       - name: Inicializar Terraform
         run: terraform init
@@ -37,13 +49,7 @@ jobs:
 
       - name: Plan de Terraform
         run: terraform plan
-        env:
-          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
 
       - name: Aplicar infraestructura (solo en rama dev)
         if: github.ref == 'refs/heads/dev'
         run: terraform apply -auto-approve
-        env:
-          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
