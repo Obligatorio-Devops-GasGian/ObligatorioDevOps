@@ -19,8 +19,11 @@ jobs:
         working-directory: ./infra
 
     steps:
-    - name: List infra folder
-      run: ls -la infra
+    - name: List repo root
+      run: ls -la /home/runner/work/ObligatorioDevOps/ObligatorioDevops/
+    - name: List repo working dir
+      run: ls -la
+
 
     - name: Checkout code
       uses: actions/checkout@v3
