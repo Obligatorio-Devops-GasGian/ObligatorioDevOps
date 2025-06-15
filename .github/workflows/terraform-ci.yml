@@ -19,6 +19,9 @@ jobs:
         working-directory: ./infra
 
     steps:
+    - name: List infra folder
+      run: ls -la ./infra
+
     - name: Checkout code
       uses: actions/checkout@v3
 
