@@ -1,10 +1,10 @@
-name: Run Pytest
+name: Run Tests
 
 on:
   push:
-    branches: [ main, dev ]
+    branches: [main]
   pull_request:
-    branches: [ main, dev ]
+    branches: [main]
 
 jobs:
   test:
@@ -19,13 +19,29 @@ jobs:
         with:
           python-version: '3.11'
 
-      - name: Instalar dependencias directamente
+      - name: Install pytest y requests
         run: |
-          python3 -m pip install --upgrade pip
-          python3 -m pip install flask redis gunicorn requests pytest
+          python -m pip install --upgrade pip
+          pip install pytest requests
 
-      - name: Verificar instalación de pytest
-        run: python3 -m pytest --version
+      - name: Build and start Docker containers
+        run: docker-compose -f docker-compose.yml up -d
 
-      - name: Ejecutar tests
-        run: python3 -m pytest vote/test/test_vote.py
+      - name: Wait for vote service to be ready
+        run: |
+          echo "Esperando a que vote esté disponible..."
+          for i in {1..10}; do
+            if curl -s http://localhost:5000/; then
+              echo "✅ Vote está listo"
+              break
+            fi
+            echo "Intento $i fallido, esperando 3s..."
+            sleep 3
+          done
+
+      - name: Run tests
+        run: python -m pytest vote/test/test_vote.py
+
+      - name: Stop Docker containers
+        if: always()
+        run: docker-compose down
