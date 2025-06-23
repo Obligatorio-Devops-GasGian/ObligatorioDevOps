@@ -1,0 +1,54 @@
+name: Build and Push Docker Images to ECR
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - dev
+    paths:
+      - 'app/**'
+      - '.github/workflows/app.yml'
+
+jobs:
+  docker:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v2
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-session-token: ${{ secrets.AWS_SESSION_TOKEN }}
+          aws-region: ${{ secrets.AWS_REGION }}
+
+      - name: Login to Amazon ECR
+        id: login-ecr
+        uses: aws-actions/amazon-ecr-login@v1
+
+      - name: Build and push vote image
+        run: |
+          docker build -t vote ./app/vote
+          docker tag vote:latest ${{ steps.login-ecr.outputs.registry }}/vote:latest
+          docker push ${{ steps.login-ecr.outputs.registry }}/vote:latest
+
+      - name: Build and push result image
+        run: |
+          docker build -t result ./app/result
+          docker tag result:latest ${{ steps.login-ecr.outputs.registry }}/result:latest
+          docker push ${{ steps.login-ecr.outputs.registry }}/result:latest
+
+      - name: Build and push worker image
+        run: |
+          docker build -t worker ./app/worker
+          docker tag worker:latest ${{ steps.login-ecr.outputs.registry }}/worker:latest
+          docker push ${{ steps.login-ecr.outputs.registry }}/worker:latest
+
+      - name: Build and push seed-data image
+        run: |
+          docker build -t seed-data ./app/seed-data
+          docker tag seed-data:latest ${{ steps.login-ecr.outputs.registry }}/seed-data:latest
+          docker push ${{ steps.login-ecr.outputs.registry }}/seed-data:latest
