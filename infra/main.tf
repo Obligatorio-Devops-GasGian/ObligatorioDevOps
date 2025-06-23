@@ -71,7 +71,7 @@ resource "aws_security_group" "instance_sg" {
   }
 }
 
-# (Opcional) EC2 para testing manual
+
 resource "aws_instance" "example" {
   ami                         = "ami-0c02fb55956c7d316"
   instance_type               = "t2.micro"
@@ -84,7 +84,7 @@ resource "aws_instance" "example" {
   }
 }
 
-# IAM Role para ECS tareas Fargate
+
 resource "aws_iam_role" "ecs_task_execution_role" {
   name = "ecsTaskExecutionRole"
 
@@ -105,12 +105,12 @@ resource "aws_iam_role_policy_attachment" "ecs_task_execution_policy" {
   policy_arn = "arn:aws:iam::aws:policy/service-role/AmazonECSTaskExecutionRolePolicy"
 }
 
-# ECS Cluster
+
 resource "aws_ecs_cluster" "main" {
   name = "obligatorio-cluster"
 }
 
-# Repositorios ECR
+
 resource "aws_ecr_repository" "vote" {
   name = "vote"
 }
@@ -127,7 +127,7 @@ resource "aws_ecr_repository" "seed_data" {
   name = "seed-data"
 }
 
-# Task Definitions
+
 resource "aws_ecs_task_definition" "vote" {
   family                   = "vote-task"
   network_mode             = "awsvpc"
@@ -190,7 +190,7 @@ resource "aws_ecs_task_definition" "seed_data" {
   }])
 }
 
-# Servicios Fargate
+
 resource "aws_ecs_service" "vote" {
   name            = "vote-service"
   cluster         = aws_ecs_cluster.main.id
