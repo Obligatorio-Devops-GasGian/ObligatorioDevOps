@@ -1,3 +1,10 @@
+# main.tf
+
+# Provider
+provider "aws" {
+  region = var.aws_region
+}
+
 # VPC
 resource "aws_vpc" "main" {
   cidr_block           = "10.0.0.0/16"
@@ -71,7 +78,6 @@ resource "aws_security_group" "instance_sg" {
   }
 }
 
-
 resource "aws_instance" "example" {
   ami                         = "ami-0c02fb55956c7d316"
   instance_type               = "t2.micro"
@@ -84,32 +90,9 @@ resource "aws_instance" "example" {
   }
 }
 
-
-resource "aws_iam_role" "ecs_task_execution_role" {
-  name = "ecsTaskExecutionRole"
-
-  assume_role_policy = jsonencode({
-    Version = "2012-10-17",
-    Statement = [{
-      Effect = "Allow",
-      Principal = {
-        Service = "ecs-tasks.amazonaws.com"
-      },
-      Action = "sts:AssumeRole"
-    }]
-  })
-}
-
-resource "aws_iam_role_policy_attachment" "ecs_task_execution_policy" {
-  role       = aws_iam_role.ecs_task_execution_role.name
-  policy_arn = "arn:aws:iam::aws:policy/service-role/AmazonECSTaskExecutionRolePolicy"
-}
-
-
 resource "aws_ecs_cluster" "main" {
   name = "obligatorio-cluster"
 }
-
 
 resource "aws_ecr_repository" "vote" {
   name = "vote"
@@ -127,14 +110,13 @@ resource "aws_ecr_repository" "seed_data" {
   name = "seed-data"
 }
 
-
 resource "aws_ecs_task_definition" "vote" {
   family                   = "vote-task"
   network_mode             = "awsvpc"
   requires_compatibilities = ["FARGATE"]
   cpu                      = "256"
   memory                   = "512"
-  execution_role_arn       = aws_iam_role.ecs_task_execution_role.arn
+  execution_role_arn       = var.ecs_task_execution_role_arn
 
   container_definitions = jsonencode([{
     name      = "vote"
@@ -150,7 +132,7 @@ resource "aws_ecs_task_definition" "result" {
   requires_compatibilities = ["FARGATE"]
   cpu                      = "256"
   memory                   = "512"
-  execution_role_arn       = aws_iam_role.ecs_task_execution_role.arn
+  execution_role_arn       = var.ecs_task_execution_role_arn
 
   container_definitions = jsonencode([{
     name      = "result"
@@ -166,7 +148,7 @@ resource "aws_ecs_task_definition" "worker" {
   requires_compatibilities = ["FARGATE"]
   cpu                      = "256"
   memory                   = "512"
-  execution_role_arn       = aws_iam_role.ecs_task_execution_role.arn
+  execution_role_arn       = var.ecs_task_execution_role_arn
 
   container_definitions = jsonencode([{
     name      = "worker"
@@ -181,7 +163,7 @@ resource "aws_ecs_task_definition" "seed_data" {
   requires_compatibilities = ["FARGATE"]
   cpu                      = "256"
   memory                   = "512"
-  execution_role_arn       = aws_iam_role.ecs_task_execution_role.arn
+  execution_role_arn       = var.ecs_task_execution_role_arn
 
   container_definitions = jsonencode([{
     name      = "seed-data"
@@ -189,7 +171,6 @@ resource "aws_ecs_task_definition" "seed_data" {
     essential = true
   }])
 }
-
 
 resource "aws_ecs_service" "vote" {
   name            = "vote-service"
