@@ -50,13 +50,21 @@ resource "aws_route_table_association" "public_assoc" {
 
 resource "aws_security_group" "instance_sg" {
   name        = "obligatorio-sg"
-  description = "Permite acceso SSH"
+  description = "Permite acceso SSH y HTTP"
   vpc_id      = aws_vpc.main.id
 
   ingress {
     description = "SSH"
     from_port   = 22
     to_port     = 22
+    protocol    = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+
+  ingress {
+    description = "HTTP"
+    from_port   = 80
+    to_port     = 80
     protocol    = "tcp"
     cidr_blocks = ["0.0.0.0/0"]
   }
