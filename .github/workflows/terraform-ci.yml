@@ -19,9 +19,6 @@ jobs:
         working-directory: ./infra
 
     steps:
-    - name: Terraform Destroy (solo en workflow_dispatch)
-      run: terraform destroy -auto-approve -input=false
-
     - name: Checkout code
       uses: actions/checkout@v3
 
@@ -43,6 +40,9 @@ jobs:
 
     - name: Terraform Init
       run: terraform init
+
+    - name: Terraform Destroy
+      run: terraform destroy -auto-approve -input=false
 
     - name: Terraform Validate
       run: terraform validate
