@@ -2,32 +2,27 @@ name: Run Pytest
 
 on:
   push:
-    branches:
-      - main
-      - dev
+    branches: [ main, dev ]
   pull_request:
-    branches:
-      - main
-      - dev
+    branches: [ main, dev ]
 
 jobs:
   test:
     runs-on: ubuntu-latest
 
     steps:
-    - name: Checkout code
-      uses: actions/checkout@v3
+      - name: Checkout code
+        uses: actions/checkout@v3
 
-    - name: Verificar archivo de dependencias
-      run: cat vote/requirements.txt
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.11'
 
-    - name: Set up Python
-      uses: actions/setup-python@v4
-      with:
-        python-version: '3.11'
+      - name: Instalar dependencias
+        run: |
+          python3 -m pip install --upgrade pip
+          python3 -m pip install -r vote/requirements.txt
 
-    - name: Install dependencies
-      run: python -m pip install -r vote/requirements.txt
-
-    - name: Run tests
-      run: python -m pytest vote/test/test_vote.py
+      - name: Ejecutar tests
+        run: python3 -m pytest vote/test/test_vote.py
