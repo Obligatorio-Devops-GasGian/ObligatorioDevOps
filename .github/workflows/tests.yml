@@ -19,10 +19,13 @@ jobs:
         with:
           python-version: '3.11'
 
-      - name: Instalar dependencias
+      - name: Instalar dependencias directamente
         run: |
           python3 -m pip install --upgrade pip
-          python3 -m pip install -r vote/requirements.txt
+          python3 -m pip install flask redis gunicorn requests pytest
+
+      - name: Verificar instalación de pytest
+        run: python3 -m pytest --version
 
       - name: Ejecutar tests
         run: python3 -m pytest vote/test/test_vote.py
