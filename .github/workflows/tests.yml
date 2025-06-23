@@ -28,5 +28,4 @@ jobs:
           pip install -r vote/requirements.txt
 
       - name: Run tests
-        run: |
-          pytest vote/test/test_vote.py
+        run: python -m pytest vote/test/test_vote.py
