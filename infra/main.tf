@@ -81,3 +81,136 @@ resource "aws_instance" "example" {
     Name = "obligatorio-instance"
   }
 }
+
+//Definiciones de ECR
+
+resource "aws_ecr_repository" "vote" {
+  name = "vote"
+}
+
+resource "aws_ecr_repository" "result" {
+  name = "result"
+}
+
+resource "aws_ecr_repository" "worker" {
+  name = "worker"
+}
+
+//Task definitions
+resource "aws_ecs_task_definition" "vote" {
+  family                   = "vote-task"
+  network_mode             = "awsvpc"
+  requires_compatibilities = ["FARGATE"]
+  cpu                      = "256"
+  memory                   = "512"
+  execution_role_arn       = aws_iam_role.ecs_task_execution_role.arn
+
+  container_definitions = jsonencode([{
+    name      = "vote"
+    image     = "${aws_ecr_repository.vote.repository_url}:latest"
+    essential = true
+    portMappings = [{ containerPort = 80 }]
+  }])
+}
+
+resource "aws_ecs_task_definition" "result" {
+  family                   = "result-task"
+  network_mode             = "awsvpc"
+  requires_compatibilities = ["FARGATE"]
+  cpu                      = "256"
+  memory                   = "512"
+  execution_role_arn       = aws_iam_role.ecs_task_execution_role.arn
+
+  container_definitions = jsonencode([{
+    name      = "result"
+    image     = "${aws_ecr_repository.result.repository_url}:latest"
+    essential = true
+    portMappings = [{ containerPort = 80 }]
+  }])
+}
+
+resource "aws_ecs_task_definition" "worker" {
+  family                   = "worker-task"
+  network_mode             = "awsvpc"
+  requires_compatibilities = ["FARGATE"]
+  cpu                      = "256"
+  memory                   = "512"
+  execution_role_arn       = aws_iam_role.ecs_task_execution_role.arn
+
+  container_definitions = jsonencode([{
+    name      = "worker"
+    image     = "${aws_ecr_repository.worker.repository_url}:latest"
+    essential = true
+  }])
+}
+
+resource "aws_ecs_task_definition" "seed_data" {
+  family                   = "seed-data-task"
+  network_mode             = "awsvpc"
+  requires_compatibilities = ["FARGATE"]
+  cpu                      = "256"
+  memory                   = "512"
+  execution_role_arn       = aws_iam_role.ecs_task_execution_role.arn
+
+  container_definitions = jsonencode([{
+    name      = "seed-data"
+    image     = "${aws_ecr_repository.seed_data.repository_url}:latest"
+    essential = true
+  }])
+}
+//ECS Fargate
+resource "aws_ecs_service" "vote" {
+  name            = "vote-service"
+  cluster         = aws_ecs_cluster.main.id
+  task_definition = aws_ecs_task_definition.vote.arn
+  launch_type     = "FARGATE"
+  desired_count   = 1
+
+  network_configuration {
+    subnets          = [aws_subnet.public_subnet.id]
+    security_groups  = [aws_security_group.instance_sg.id]
+    assign_public_ip = true
+  }
+}
+
+resource "aws_ecs_service" "result" {
+  name            = "result-service"
+  cluster         = aws_ecs_cluster.main.id
+  task_definition = aws_ecs_task_definition.result.arn
+  launch_type     = "FARGATE"
+  desired_count   = 1
+
+  network_configuration {
+    subnets          = [aws_subnet.public_subnet.id]
+    security_groups  = [aws_security_group.instance_sg.id]
+    assign_public_ip = true
+  }
+}
+
+resource "aws_ecs_service" "worker" {
+  name            = "worker-service"
+  cluster         = aws_ecs_cluster.main.id
+  task_definition = aws_ecs_task_definition.worker.arn
+  launch_type     = "FARGATE"
+  desired_count   = 1
+
+  network_configuration {
+    subnets          = [aws_subnet.public_subnet.id]
+    security_groups  = [aws_security_group.instance_sg.id]
+    assign_public_ip = true
+  }
+}
+
+resource "aws_ecs_service" "seed_data" {
+  name            = "seed-data-service"
+  cluster         = aws_ecs_cluster.main.id
+  task_definition = aws_ecs_task_definition.seed_data.arn
+  launch_type     = "FARGATE"
+  desired_count   = 1
+
+  network_configuration {
+    subnets          = [aws_subnet.public_subnet.id]
+    security_groups  = [aws_security_group.instance_sg.id]
+    assign_public_ip = true
+  }
+}
