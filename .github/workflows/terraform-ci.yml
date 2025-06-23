@@ -48,3 +48,6 @@ jobs:
       run: terraform plan -input=false
     - name: Terraform Apply
       run: terraform apply -auto-approve -input=false
+
+    - name: Terraform Destroy (solo en workflow_dispatch)
+      run: terraform destroy -auto-approve -input=false
