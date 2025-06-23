@@ -6,7 +6,10 @@ on:
     branches:
       - dev
     paths:
-      - 'app/**'
+      - 'vote/**'
+      - 'result/**'
+      - 'worker/**'
+      - 'seed-data/**'
       - '.github/workflows/app.yml'
 
 jobs:
@@ -31,24 +34,24 @@ jobs:
 
       - name: Build and push vote image
         run: |
-          docker build -t vote ./app/vote
+          docker build -t vote ./vote
           docker tag vote:latest ${{ steps.login-ecr.outputs.registry }}/vote:latest
           docker push ${{ steps.login-ecr.outputs.registry }}/vote:latest
 
       - name: Build and push result image
         run: |
-          docker build -t result ./app/result
+          docker build -t result ./result
           docker tag result:latest ${{ steps.login-ecr.outputs.registry }}/result:latest
           docker push ${{ steps.login-ecr.outputs.registry }}/result:latest
 
       - name: Build and push worker image
         run: |
-          docker build -t worker ./app/worker
+          docker build -t worker ./worker
           docker tag worker:latest ${{ steps.login-ecr.outputs.registry }}/worker:latest
           docker push ${{ steps.login-ecr.outputs.registry }}/worker:latest
 
       - name: Build and push seed-data image
         run: |
-          docker build -t seed-data ./app/seed-data
+          docker build -t seed-data ./seed-data
           docker tag seed-data:latest ${{ steps.login-ecr.outputs.registry }}/seed-data:latest
           docker push ${{ steps.login-ecr.outputs.registry }}/seed-data:latest
