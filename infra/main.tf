@@ -1,3 +1,9 @@
+provider "aws" {
+  region  = "us-east-1"
+  profile = "default"
+}
+
+# VPC
 resource "aws_vpc" "main" {
   cidr_block           = "10.0.0.0/16"
   enable_dns_support   = true
@@ -51,18 +57,18 @@ resource "aws_security_group" "instance_sg" {
   vpc_id      = aws_vpc.main.id
 
   ingress {
-    description      = "SSH"
-    from_port        = 22
-    to_port          = 22
-    protocol         = "tcp"
-    cidr_blocks      = ["0.0.0.0/0"]
+    description = "SSH"
+    from_port   = 22
+    to_port     = 22
+    protocol    = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]
   }
 
   egress {
-    from_port        = 0
-    to_port          = 0
-    protocol         = "-1"
-    cidr_blocks      = ["0.0.0.0/0"]
+    from_port   = 0
+    to_port     = 0
+    protocol    = "-1"
+    cidr_blocks = ["0.0.0.0/0"]
   }
 
   tags = {
@@ -70,11 +76,12 @@ resource "aws_security_group" "instance_sg" {
   }
 }
 
+# (Opcional) EC2 para testing manual
 resource "aws_instance" "example" {
-  ami                    = "ami-0c02fb55956c7d316" # Cambia esta AMI por una válida para us-east-1
-  instance_type          = "t2.micro"
-  subnet_id              = aws_subnet.public_subnet.id
-  vpc_security_group_ids = [aws_security_group.instance_sg.id]
+  ami                         = "ami-0c02fb55956c7d316"
+  instance_type               = "t2.micro"
+  subnet_id                   = aws_subnet.public_subnet.id
+  vpc_security_group_ids      = [aws_security_group.instance_sg.id]
   associate_public_ip_address = true
 
   tags = {
@@ -82,8 +89,33 @@ resource "aws_instance" "example" {
   }
 }
 
-//Definiciones de ECR
+# IAM Role para ECS tareas Fargate
+resource "aws_iam_role" "ecs_task_execution_role" {
+  name = "ecsTaskExecutionRole"
 
+  assume_role_policy = jsonencode({
+    Version = "2012-10-17",
+    Statement = [{
+      Effect = "Allow",
+      Principal = {
+        Service = "ecs-tasks.amazonaws.com"
+      },
+      Action = "sts:AssumeRole"
+    }]
+  })
+}
+
+resource "aws_iam_role_policy_attachment" "ecs_task_execution_policy" {
+  role       = aws_iam_role.ecs_task_execution_role.name
+  policy_arn = "arn:aws:iam::aws:policy/service-role/AmazonECSTaskExecutionRolePolicy"
+}
+
+# ECS Cluster
+resource "aws_ecs_cluster" "main" {
+  name = "obligatorio-cluster"
+}
+
+# Repositorios ECR
 resource "aws_ecr_repository" "vote" {
   name = "vote"
 }
@@ -96,7 +128,11 @@ resource "aws_ecr_repository" "worker" {
   name = "worker"
 }
 
-//Task definitions
+resource "aws_ecr_repository" "seed_data" {
+  name = "seed-data"
+}
+
+# Task Definitions
 resource "aws_ecs_task_definition" "vote" {
   family                   = "vote-task"
   network_mode             = "awsvpc"
@@ -158,7 +194,8 @@ resource "aws_ecs_task_definition" "seed_data" {
     essential = true
   }])
 }
-//ECS Fargate
+
+# Servicios Fargate
 resource "aws_ecs_service" "vote" {
   name            = "vote-service"
   cluster         = aws_ecs_cluster.main.id
