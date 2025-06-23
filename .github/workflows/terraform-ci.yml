@@ -48,6 +48,3 @@ jobs:
       run: terraform plan -input=false
     - name: Terraform Apply
       run: terraform apply -auto-approve -input=false
-
-    - name: Terraform Destroy
-      run: terraform destroy -auto-approve -input=false
