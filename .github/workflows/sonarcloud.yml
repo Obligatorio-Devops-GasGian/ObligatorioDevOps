@@ -1,4 +1,4 @@
-name: SonarCloud
+name: SonarCloud Analysis
 
 on:
   push:
@@ -6,12 +6,10 @@ on:
       - main
   pull_request:
     types: [opened, synchronize, reopened]
-    branches:
-      - main
 
 jobs:
-  sonarcloud:
-    name: SonarCloud Analysis
+  sonarqube:
+    name: SonarCloud
     runs-on: ubuntu-latest
 
     steps:
@@ -25,7 +23,7 @@ jobs:
 
       - name: Install dependencies
         run: |
-          pip install -r vote/requirements.txt
+          pip install -r requirements.txt || true
 
       - name: SonarCloud Scan
         uses: SonarSource/sonarcloud-github-action@v2
@@ -33,5 +31,3 @@ jobs:
           projectBaseDir: .
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-          SONAR_PROJECT_KEY: ObligatorioDevOps
-          SONAR_ORGANIZATION: obligatorio-devops-gasgian
