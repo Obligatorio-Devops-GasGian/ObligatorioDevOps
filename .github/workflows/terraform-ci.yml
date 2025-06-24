@@ -4,12 +4,10 @@ on:
   workflow_dispatch:
   push:
     branches:
-      - feature/infraestructura
-      - dev
+      - infra
   pull_request:
     branches:
-      - feature/infraestructura
-      - dev
+      - infra
 
 jobs:
   terraform:
