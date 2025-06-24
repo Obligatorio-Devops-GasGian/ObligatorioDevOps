@@ -2,14 +2,14 @@ name: SonarCloud Analysis
 
 on:
   push:
-    branches:
-      - main
+    branches: [ main ]
   pull_request:
     types: [opened, synchronize, reopened]
 
 jobs:
   sonarqube:
     runs-on: ubuntu-latest
+
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -21,7 +21,7 @@ jobs:
 
       - name: Install dependencies
         run: |
-          pip install -r requirements.txt || true
+          pip install -r requirements.txt
 
       - name: Run functional tests
         run: |
