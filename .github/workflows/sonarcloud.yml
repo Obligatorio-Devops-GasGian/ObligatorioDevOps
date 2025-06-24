@@ -9,9 +9,7 @@ on:
 
 jobs:
   sonarqube:
-    name: SonarCloud
     runs-on: ubuntu-latest
-
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -24,6 +22,10 @@ jobs:
       - name: Install dependencies
         run: |
           pip install -r requirements.txt || true
+
+      - name: Run functional tests
+        run: |
+          pytest test_funcional.py
 
       - name: SonarCloud Scan
         uses: SonarSource/sonarcloud-github-action@v2
