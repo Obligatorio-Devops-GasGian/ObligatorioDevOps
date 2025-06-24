@@ -4,7 +4,7 @@ def test_app_runs():
     import subprocess
     try:
         result = subprocess.run(
-            ["python", "app.py"],
+            ["python", "vote/app.py"],
             check=True,
             capture_output=True,
             text=True,
