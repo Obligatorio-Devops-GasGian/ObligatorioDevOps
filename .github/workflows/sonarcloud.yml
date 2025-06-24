@@ -30,7 +30,7 @@ jobs:
         with:
           projectBaseDir: .
           args: >
-            -Dsonar.projectKey=ObligatorioDevOps_GasGian
             -Dsonar.organization=obligatorio-devops-gasgian
+            -Dsonar.projectKey=ObligatorioDevOps
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
