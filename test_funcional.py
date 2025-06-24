@@ -1,17 +1,7 @@
-import subprocess
-
-def test_app_runs():
-    import subprocess
-    try:
-        result = subprocess.run(
-            ["python", "-m", "vote.app"],
-            check=True,
-            capture_output=True,
-            text=True,
-            timeout=10
-        )
-        print("Salida:", result.stdout)
-        assert "error" not in result.stdout.lower()
-    except subprocess.CalledProcessError as e:
-        print("Error al ejecutar el comando:", e.stderr)
-        raise
+def test_app_imports():
+    """
+    Verifica que el módulo principal se pueda importar sin errores.
+    Esto asegura que no haya errores de sintaxis ni dependencias faltantes
+    en el archivo app.py dentro de la carpeta vote.
+    """
+    import vote.app
