@@ -1,4 +1,3 @@
-
 name: Build and Push Docker Images to ECR
 
 on:
@@ -16,6 +15,37 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v3
 
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.11'
+
+      - name: Install Python dependencies
+        run: |
+          pip install -r requirements.txt
+
+      - name: Run functional test
+        run: |
+          pytest test_funcional.py
+
+      - name: Run SonarCloud analysis
+        uses: SonarSource/sonarcloud-github-action@v2
+        with:
+          projectBaseDir: .
+          args: >
+            -Dsonar.organization=obligatorio-devops-gasgian
+            -Dsonar.projectKey=Obligatorio-Devops-GasGian_ObligatorioDevOps
+        env:
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+
+      - name: Wait for Quality Gate result
+        uses: SonarSource/sonarcloud-quality-gate-action@master
+        with:
+          scanMetadataReportFile: .scannerwork/report-task.txt
+        env:
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+
+      # Solo se llega aquí si pasó todo
       - name: Configure AWS Credentials
         uses: aws-actions/configure-aws-credentials@v2
         with:
