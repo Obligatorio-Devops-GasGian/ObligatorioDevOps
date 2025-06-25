@@ -78,3 +78,4 @@ jobs:
           docker build -t seed-data ./seed-data
           docker tag seed-data:latest ${{ steps.login-ecr.outputs.registry }}/seed-data:latest
           docker push ${{ steps.login-ecr.outputs.registry }}/seed-data:latest
+#trigger !!
