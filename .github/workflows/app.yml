@@ -39,7 +39,7 @@ jobs:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
 
       - name: Wait for Quality Gate result
-        uses: SonarSource/sonarcloud-quality-gate-action@master
+        uses: SonarSource/sonarcloud-quality-gate-action@v1.1.0
         with:
           scanMetadataReportFile: .scannerwork/report-task.txt
         env:
