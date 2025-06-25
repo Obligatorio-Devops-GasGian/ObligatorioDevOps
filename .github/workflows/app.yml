@@ -1,10 +1,8 @@
 name: Build and Push Docker Images to ECR
 
 on:
-  workflow_run:
-    workflows: ["AWS Credentials Test and Terraform Plan"]
-    types:
-      - completed
+  push:
+    branches: [dev]
 
 jobs:
   docker:
